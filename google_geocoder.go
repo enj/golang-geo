@@ -152,11 +152,11 @@ func (g *GoogleGeocoder) extractLatLngAndAddressFromResponse(data []byte) (Point
 	err := json.Unmarshal(data, &res)
 
 	if err != nil {
-		return nil, "", err
+		return Point{}, "", err
 	}
 
 	if len(res.Results) == 0 {
-		return nil, "", googleZeroResultsError
+		return Point{}, "", googleZeroResultsError
 	}
 
 	lat := res.Results[0].Geometry.Location.Lat
