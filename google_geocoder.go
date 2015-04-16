@@ -124,10 +124,43 @@ func (g *GoogleGeocoder) extractAddressFromResponse(data []byte) (string, error)
 	if err != nil {
 		return "", err
 	}
-	
+
 	if len(res.Results) == 0 {
 		return "", errors.New("ZERO_RESULTS")
 	}
 
 	return res.Results[0].FormattedAddress, nil
+}
+
+func (g *GoogleGeocoder) GeocodeWithAddress(query string) (*Point, string, error) {
+	url_safe_query := url.QueryEscape(query)
+	data, err := g.Request(fmt.Sprintf("address=%s", url_safe_query))
+	if err != nil {
+		return nil, "", err
+	}
+
+	point, address, err := g.extractLatLngAndAddressFromResponse(data)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return &point, address, nil
+}
+
+func (g *GoogleGeocoder) extractLatLngAndAddressFromResponse(data []byte) (Point, string, error) {
+	res := &googleGeocodeResponse{}
+	err := json.Unmarshal(data, &res)
+
+	if err != nil {
+		return nil, "", err
+	}
+
+	if len(res.Results) == 0 {
+		return nil, "", googleZeroResultsError
+	}
+
+	lat := res.Results[0].Geometry.Location.Lat
+	lng := res.Results[0].Geometry.Location.Lng
+
+	return Point{lat, lng}, res.Results[0].FormattedAddress, nil
 }
