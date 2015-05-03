@@ -13,6 +13,7 @@ import (
 // of interacting with the Google Maps Geocoding Service
 type GoogleGeocoder struct{
 	HttpClient *http.Client
+	Key        string
 }
 
 // This struct contains selected fields from Google's Geocoding Service response
@@ -33,7 +34,7 @@ type googleGeocodeResponse struct {
 var googleZeroResultsError = errors.New("ZERO_RESULTS")
 
 // This contains the base URL for the Google Geocoder API.
-var googleGeocodeURL = "http://maps.googleapis.com/maps/api/geocode/json"
+var googleGeocodeURL = "https://maps.googleapis.com/maps/api/geocode/json"
 
 // Note:  In the next major revision (1.0.0), it is planned
 //        That Geocoders should adhere to the `geo.Geocoder`
@@ -52,7 +53,7 @@ func (g *GoogleGeocoder) Request(params string) ([]byte, error) {
 
 	client := g.HttpClient
 
-	fullUrl := fmt.Sprintf("%s?sensor=false&%s", googleGeocodeURL, params)
+	fullUrl := fmt.Sprintf("%s?sensor=false&key=%s&%s", googleGeocodeURL, g.Key, params)
 
 	// TODO Potentially refactor out from MapQuestGeocoder as well
 	req, _ := http.NewRequest("GET", fullUrl, nil)
